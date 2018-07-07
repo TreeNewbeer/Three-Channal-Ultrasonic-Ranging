@@ -1,0 +1,7 @@
+".\Objects\main.obj",
+".\Objects\delay.obj",
+".\Objects\i2c_master.obj",
+".\Objects\Mid_oled.obj",
+".\Objects\oled.obj" 
+TO ".\Objects\SuperVoiceBall" 
+PRINT(".\Listings\SuperVoiceBall.m51") RAMSIZE(256) 

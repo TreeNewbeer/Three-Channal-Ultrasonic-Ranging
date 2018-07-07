@@ -1,0 +1,143 @@
+C51 COMPILER V9.54   IIC                                                                   05/08/2017 22:11:38 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE IIC
+OBJECT MODULE PLACED IN .\Objects\IIC.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE oled\IIC.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Inc;.\oled) DEBUG OBJECTEXT
+                    -END PRINT(.\Listings\IIC.lst) TABS(2) OBJECT(.\Objects\IIC.obj)
+
+line level    source
+
+   1          
+   2          
+   3          #include "IIC.h"
+   4          #include "intrins.h"
+   5          
+   6          sbit SCL = P1^0;
+   7          sbit SDA = P1^1;
+   8          
+   9          void Delay10us(void)    //@12.000MHz
+  10          {
+  11   1          unsigned char a,b;
+  12   1          for(b=13;b>0;b--)
+  13   1              for(a=3;a>0;a--);
+  14   1      }
+  15          
+  16          void IIC_Start(void)          //起始信号
+  17          {
+  18   1        SDA = 1;
+  19   1        Delay10us();
+  20   1        SCL = 1;
+  21   1        Delay10us();
+  22   1        SDA = 0;
+  23   1        Delay10us();
+  24   1        SCL = 0;
+  25   1        Delay10us();
+  26   1      }
+  27          
+  28          
+  29          void IIC_Stop(void)          //停止信号
+  30          {
+  31   1        SDA = 0;
+  32   1        Delay10us();
+  33   1        SCL = 1;
+  34   1        Delay10us();
+  35   1        SDA = 1;
+  36   1        Delay10us();
+  37   1        SCL = 0;
+  38   1        Delay10us();
+  39   1      }
+  40          
+  41          
+  42          void IIC_Ack(void)            //主机应答
+  43          {
+  44   1        unsigned char i;
+  45   1        SDA = 0;
+  46   1        Delay10us();
+  47   1        SCL = 1;                       //在时钟线为高电平期间，SDA被从设备拉为低电平表示应答
+  48   1        Delay10us();
+  49   1        while((1 == SDA) && (i < 250))
+  50   1          i++;
+  51   1        SCL = 0;
+  52   1        Delay10us();
+  53   1      }
+  54          
+C51 COMPILER V9.54   IIC                                                                   05/08/2017 22:11:38 PAGE 2   
+
+  55          
+  56          void IIC_No_Ack(void)            //主机无应答
+  57          {
+  58   1        unsigned char i;
+  59   1        SDA = 1;
+  60   1        Delay10us();
+  61   1        SCL = 1;                       //在时钟线为SCL为高电平期间，SDA仍然保持高电平表示无应答
+  62   1        Delay10us();
+  63   1        while((0 == SDA) && (i < 250))
+  64   1          i++;
+  65   1        SCL = 0;
+  66   1        Delay10us();
+  67   1      }
+  68          
+  69          
+  70          unsigned char IIC_Read_Ack(void)     //主机读取应答
+  71          {
+  72   1        unsigned char error;
+  73   1        SDA = 1;
+  74   1        Delay10us();
+  75   1        SCL = 1;
+  76   1        Delay10us();
+  77   1        error = SDA;
+  78   1        Delay10us();
+  79   1        SCL = 0;
+  80   1        Delay10us();
+  81   1        return error;                   //成功写入字节返回0，否则返回1
+  82   1      }
+  83          
+  84          
+  85          void IIC_Write_Byte(unsigned char Data)   //写入一个字节
+  86          {
+  87   1        unsigned char i;
+  88   1        for(i = 0;i < 8;i++)
+  89   1        {
+  90   2          SDA = ((Data << i) & 0x80);
+  91   2          SCL = 1;
+  92   2          Delay10us();
+  93   2          SCL = 0;                  
+  94   2          Delay10us();  
+  95   2        }
+  96   1      }
+  97          
+  98          
+  99          unsigned char IIC_Read_Byte(void)
+ 100          {
+ 101   1        unsigned char i,rByte = 0;
+ 102   1        SCL = 0;
+ 103   1        Delay10us();
+ 104   1        SDA = 1;
+ 105   1        Delay10us();
+ 106   1        for(i = 0;i < 8;i++)
+ 107   1        {
+ 108   2          SCL = 1;
+ 109   2          Delay10us();
+ 110   2          rByte = (rByte << 1) | SDA;
+ 111   2          SCL = 0;
+ 112   2          Delay10us();
+ 113   2        }
+ 114   1        return rByte;
+ 115   1      }
+
+C51 COMPILER V9.54   IIC                                                                   05/08/2017 22:11:38 PAGE 3   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    180    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
